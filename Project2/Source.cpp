@@ -45,6 +45,8 @@ int displayBuffer[FIELD_HEIGHT][FIELD_WIDTH];
 //探索済みを重複しないようにフラグ立てる
 int checked[FIELD_HEIGHT][FIELD_WIDTH];
 
+int eraseCount;
+
 //全角2byte + null 1
 char cellNames[][2 + 1] = {
 	"・",// CELL_NONE,
@@ -60,6 +62,7 @@ int puyoX = PUYO_START_X,
 puyoY = PUYO_START_Y;
 int puyoColor;
 int puyoAngle;
+int puyoColor2;
 
 //ぷよが消えた時ロックがかかる
 bool lock = false;
@@ -76,15 +79,21 @@ void display() {
 		int subX = puyoX + puyoSubPositions[puyoAngle][0];
 		int subY = puyoY + puyoSubPositions[puyoAngle][1];
 		//ぷよ描画
-		displayBuffer[puyoY][puyoX] =
-			displayBuffer[subY][subX] = CELL_PUYO_0 + puyoColor;
+		displayBuffer[puyoY][puyoX] = CELL_PUYO_0 + puyoColor;
+		displayBuffer[subY][subX] = CELL_PUYO_0 + puyoColor2;
 	}
 	for (int y = 1; y < FIELD_HEIGHT; y++) {
 		for (int x = 0; x < FIELD_WIDTH; x++)
 			printf("%s", cellNames[displayBuffer[y][x]]);
 		printf("\n");
-		
+
 	}
+	printf("\n\n==== 操  作 ====\n\n ←:A       →:D \n\n");
+	printf("       ↓:S\n\n");
+	printf("くるくる :Space\n");
+	printf("================\n\n");
+	printf("    SCORE: ""%d", eraseCount*100);
+	
 }
 
 //ぷよと壁の当たり判定 仮の座標で判定し、当たらなければ移動または回転可能
@@ -100,6 +109,7 @@ bool intersectPuyoToField(int _puyoX, int _puyoY, int _puyoAngle) {
 
 	return false;
 }
+
 
 //この中で必要なら_count加算して
 int getPuyoConnectedCount(int _x, int _y, int _cell, int _count) {
@@ -119,9 +129,11 @@ int getPuyoConnectedCount(int _x, int _y, int _cell, int _count) {
 	}
 
 	return _count;
-	
+
 }
 
+
+//消す処理
 void erasePuyo(int _x, int _y, int _cell) {
 	if (cells[_y][_x] != _cell)
 		return;
@@ -133,11 +145,11 @@ void erasePuyo(int _x, int _y, int _cell) {
 		int y = _y + puyoSubPositions[i][1];
 		erasePuyo(x, y, _cell);
 	}
-
+	eraseCount++;
 }
 
 int main() {
-	//キャスとしてから渡す
+	//castしてから渡す
 	srand((unsigned int)time(NULL));
 
 	for (int y = 0; y < FIELD_HEIGHT; y++)
@@ -150,7 +162,7 @@ int main() {
 		cells[FIELD_HEIGHT - 1][x] = CELL_WALL;
 
 	puyoColor = rand() % PUYO_ANGLE_MAX;
-
+	puyoColor2 = rand() % PUYO_ANGLE_MAX;
 
 
 	time_t t = 0;
@@ -167,15 +179,15 @@ int main() {
 					int subX = puyoX + puyoSubPositions[puyoAngle][0];
 					int subY = puyoY + puyoSubPositions[puyoAngle][1];
 
-					cells[puyoY][puyoX] =
-						cells[subY][subX] = CELL_PUYO_0 + puyoColor;
+					cells[puyoY][puyoX] = CELL_PUYO_0 + puyoColor;
+					cells[subY][subX] = CELL_PUYO_0 + puyoColor2;
 
 					//
 					puyoX = PUYO_START_X;
 					puyoY = PUYO_START_Y;
 					puyoAngle = PUYO_ANGLE_0;
 					puyoColor = rand() % PUYO_ANGLE_MAX;
-
+					puyoColor2 = rand() % PUYO_ANGLE_MAX;
 					lock = true;
 				}
 			}
@@ -196,11 +208,21 @@ int main() {
 
 				if (!lock) {
 					memset(checked, 0, sizeof checked);
+
+					for (int z = 0; z <= FIELD_WIDTH - 1; z++) {
+						if (cells[1][z] != CELL_NONE) {
+							break;
+						}
+					}
+
 					for (int y = 0; y < FIELD_HEIGHT - 1; y++)
 						for (int x = 1; x < FIELD_WIDTH - 1; x++) {
-							if(cells[y][x]!=CELL_NONE)
+							if (cells[y][x] != CELL_NONE)
 								if (getPuyoConnectedCount(x, y, cells[y][x], 0) >= 4) {
 									erasePuyo(x, y, cells[y][x]);
+									
+									
+
 									lock = true;
 								}
 						}
