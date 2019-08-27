@@ -90,10 +90,51 @@ void display() {
 	}
 	printf("\n\n==== 操  作 ====\n\n ←:A       →:D \n\n");
 	printf("       ↓:S\n\n");
-	printf("くるくる :Space\n");
+	printf("反くる:Enter\n");
+	printf("時くる:BackSpace\n");
 	printf("================\n\n");
-	printf("    SCORE: ""%d", eraseCount*100);
-	
+	printf("    SCORE: ""%d", eraseCount * 100);
+
+}
+
+void titleDisplay() {
+	system("cls");
+	printf("\n\n\n\n シ ョ ボ ぷ よ\n\n");
+	printf("  　Enter で\n\n はじまるぷよ♪");
+	printf("\n\n\n==== 操  作 ====\n\n ←:A       →:D \n\n");
+	printf("       ↓:S\n\n\n");
+	printf("反くる:Enter\n\n");
+	printf("時くる:BackSpace\n\n");
+	printf("================\n\n");
+	bool isValid = false;
+	while (!isValid) {
+		switch (_getch()) {
+		case '\r':
+			isValid = true;
+			break;
+		}
+	}
+}
+
+
+
+void gameoverDisplay() {
+	system("cls"); //コンソールクリア
+	printf("\n\n\n\  GAME OVER\n\n");
+	printf("  SCORE: ""%d", eraseCount * 100);
+	printf("\n\n\n Enterで\n   タイトルぷぅ");
+	bool isValid = false;
+	while (!isValid) {
+		switch (_getch()) {
+			// Enterで終了
+		case '/r':
+			titleDisplay();
+
+			/*isValid = true;
+			break;*/
+		}
+
+	}
 }
 
 //ぷよと壁の当たり判定 仮の座標で判定し、当たらなければ移動または回転可能
@@ -164,100 +205,121 @@ int main() {
 	puyoColor = rand() % PUYO_ANGLE_MAX;
 	puyoColor2 = rand() % PUYO_ANGLE_MAX;
 
-
-	time_t t = 0;
 	while (1) {
-		if (t < time(NULL)) {
-			t = time(NULL);
-			if (!lock) {
-				if (!intersectPuyoToField(puyoX, puyoY + 1, puyoAngle)) {
+		titleDisplay();
 
-					//時間経過したらぷよ落下
-					puyoY++;
-				}
-				else {
-					int subX = puyoX + puyoSubPositions[puyoAngle][0];
-					int subY = puyoY + puyoSubPositions[puyoAngle][1];
 
-					cells[puyoY][puyoX] = CELL_PUYO_0 + puyoColor;
-					cells[subY][subX] = CELL_PUYO_0 + puyoColor2;
-
-					//
-					puyoX = PUYO_START_X;
-					puyoY = PUYO_START_Y;
-					puyoAngle = PUYO_ANGLE_0;
-					puyoColor = rand() % PUYO_ANGLE_MAX;
-					puyoColor2 = rand() % PUYO_ANGLE_MAX;
-					lock = true;
-				}
-			}
-
-			if (lock) {
-				lock = false;
-				for (int y = FIELD_HEIGHT - 3; y >= 0; y--)
-					for (int x = 1; x < FIELD_WIDTH - 1; x++)
-						if (
-							(cells[y][x] != CELL_NONE)
-							&& (cells[y + 1][x] == CELL_NONE)
-							) {
-							cells[y + 1][x] = cells[y][x];
-							cells[y][x] = CELL_NONE;
-
-							lock = true;
-						}
-
+		time_t t = 0;
+		while (1) {
+			if (t < time(NULL)) {
+				t = time(NULL);
 				if (!lock) {
-					memset(checked, 0, sizeof checked);
+					if (!intersectPuyoToField(puyoX, puyoY + 1, puyoAngle)) {
 
-					for (int z = 0; z <= FIELD_WIDTH - 1; z++) {
-						if (cells[1][z] != CELL_NONE) {
+						//時間経過したらぷよ落下
+						puyoY++;
+					}
+					else {
+						int subX = puyoX + puyoSubPositions[puyoAngle][0];
+						int subY = puyoY + puyoSubPositions[puyoAngle][1];
+
+						cells[puyoY][puyoX] = CELL_PUYO_0 + puyoColor;
+						cells[subY][subX] = CELL_PUYO_0 + puyoColor2;
+
+
+						puyoX = PUYO_START_X;
+						puyoY = PUYO_START_Y;
+						puyoAngle = PUYO_ANGLE_0;
+						puyoColor = rand() % PUYO_ANGLE_MAX;
+						puyoColor2 = rand() % PUYO_ANGLE_MAX;
+						lock = true;
+					}
+				}
+
+				if (lock) {
+					lock = false;
+					//アニメーション
+					for (int y = FIELD_HEIGHT - 3; y >= 0; y--)
+						for (int x = 1; x < FIELD_WIDTH - 1; x++)
+							if (
+								(cells[y][x] != CELL_NONE)
+								&& (cells[y + 1][x] == CELL_NONE)
+								) {
+								cells[y + 1][x] = cells[y][x];
+								cells[y][x] = CELL_NONE;
+
+								lock = true;
+							}
+
+
+					if (!lock) {
+						memset(checked, 0, sizeof checked);
+
+						bool deathFrag = false;
+						// 死亡判定
+						for (int z = 1; z < FIELD_WIDTH - 1; z++) {
+							if (cells[1][z] != CELL_NONE)
+							{
+								deathFrag = true;
+								// for文から抜ける
+								break;
+							}
+						}
+						// 全体のwhileから抜ける
+						if (deathFrag) {
 							break;
 						}
+
+						for (int y = 0; y < FIELD_HEIGHT - 1; y++)
+							for (int x = 1; x < FIELD_WIDTH - 1; x++) {
+								if (cells[y][x] != CELL_NONE)
+									if (getPuyoConnectedCount(x, y, cells[y][x], 0) >= 4) {
+										erasePuyo(x, y, cells[y][x]);
+
+
+
+										lock = true;
+									}
+							}
+
 					}
-
-					for (int y = 0; y < FIELD_HEIGHT - 1; y++)
-						for (int x = 1; x < FIELD_WIDTH - 1; x++) {
-							if (cells[y][x] != CELL_NONE)
-								if (getPuyoConnectedCount(x, y, cells[y][x], 0) >= 4) {
-									erasePuyo(x, y, cells[y][x]);
-									
-									
-
-									lock = true;
-								}
-						}
-				}
-			}
-
-			display();
-
-		}
-
-
-		//キーボード入力なければ止まらないように　入力あった時だけ受け付ける
-		if (_kbhit()) {
-			if (lock)
-				_getch();
-			else {
-				//puyoの影武者を作る
-				int x = puyoX;
-				int y = puyoY;
-				int angle = puyoAngle;
-				//キーボード入力をswitchに戻り値として渡す
-				switch (_getch()) {
-				case 's':y++; break;
-				case 'a':x--; break;
-				case 'd':x++; break;
-				case ' ':angle = (++angle) % PUYO_ANGLE_MAX;
-				}
-				if (!intersectPuyoToField(x, y, angle)) {
-					puyoX = x;
-					puyoY = y;
-					puyoAngle = angle;
 				}
 
 				display();
+
+			}
+
+
+			//キーボード入力なければ止まらないように　入力あった時だけ受け付ける
+			if (_kbhit()) {
+				if (lock)
+					_getch();
+				else {
+					//puyoの影武者を作る
+					int x = puyoX;
+					int y = puyoY;
+					int angle = puyoAngle;
+					//キーボード入力をswitchに戻り値として渡す
+					switch (_getch()) {
+					case 's':y++; break;
+					case 'a':x--; break;
+					case 'd':x++; break;
+					case '\r':angle = (++angle) % PUYO_ANGLE_MAX; break;
+					case '\b':angle = (angle + 3) % PUYO_ANGLE_MAX; break;
+					}
+					if (!intersectPuyoToField(x, y, angle)) {
+						puyoX = x;
+						puyoY = y;
+						puyoAngle = angle;
+					}
+
+					display();
+				}
 			}
 		}
+		// gameover
+		gameoverDisplay();
 	}
+	
+
 }
