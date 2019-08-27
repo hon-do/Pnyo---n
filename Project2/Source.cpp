@@ -30,6 +30,7 @@ enum {
 	PUYO_ANGLE_270,
 	PUYO_ANGLE_MAX
 };
+
 //それぞれの回転の時Subはどこにいるのか相対座標
 int puyoSubPositions[][2] = {
 	{0,-1},//PUYO_ANGLE_0,
@@ -117,15 +118,6 @@ void titleDisplay() {
 }
 
 
-
-
-
-
-
-
-
-
-
 void gameoverDisplay() {
 	system("cls"); //コンソールクリア
 	printf("\n\n\n\  GAME OVER\n\n");
@@ -194,7 +186,6 @@ void erasePuyo(int _x, int _y, int _cell) {
 	}
 	eraseCount++;
 }
-
 
 
 void gameScene() {
@@ -325,21 +316,7 @@ void gameScene() {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 int main() {
-
-	
-
 
 		while (true) {
 			titleDisplay();
@@ -352,5 +329,6 @@ int main() {
 			for (int y = 0; y < FIELD_HEIGHT - 1; y++)
 				for (int x = 1; x < FIELD_WIDTH - 1; x++)
 					cells[y][x] = 0;
+			eraseCount = 0;
 		}
 	}
