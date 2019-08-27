@@ -137,7 +137,7 @@ void gameoverDisplay() {
 			// Enterで終了
 		case '/r':
 
-			//isValid = true;
+			isValid = true;
 			break;
 			
 		}
@@ -199,6 +199,20 @@ void erasePuyo(int _x, int _y, int _cell) {
 
 
 void gameScene() {
+	//castしてから渡す
+	srand((unsigned int)time(NULL));
+
+	for (int y = 0; y < FIELD_HEIGHT; y++)
+		//左端と右端ブロック 
+		cells[y][0] =
+		cells[y][FIELD_WIDTH - 1] = CELL_WALL;
+
+	//下端ブロック
+	for (int x = 0; x < FIELD_WIDTH; x++)
+		cells[FIELD_HEIGHT - 1][x] = CELL_WALL;
+
+	puyoColor = rand() % PUYO_ANGLE_MAX;
+	puyoColor2 = rand() % PUYO_ANGLE_MAX;
 
 	time_t t = 0;
 	while (1) {
@@ -324,20 +338,7 @@ void gameScene() {
 
 
 int main() {
-	//castしてから渡す
-	srand((unsigned int)time(NULL));
 
-	for (int y = 0; y < FIELD_HEIGHT; y++)
-		//左端と右端ブロック 
-		cells[y][0] =
-		cells[y][FIELD_WIDTH - 1] = CELL_WALL;
-
-	//下端ブロック
-	for (int x = 0; x < FIELD_WIDTH; x++)
-		cells[FIELD_HEIGHT - 1][x] = CELL_WALL;
-
-	puyoColor = rand() % PUYO_ANGLE_MAX;
-	puyoColor2 = rand() % PUYO_ANGLE_MAX;
 
 	while (true) {
 		titleDisplay();
