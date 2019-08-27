@@ -3,6 +3,7 @@
 #include<string.h> //文字列コピーしたりできる
 #include<time.h> //リアルタイム処理使うため時間取得
 #include<conio.h>
+#include<windows.h>
 
 #define FIELD_WIDTH 8
 #define FIELD_HEIGHT 14 //上と下ブロック12+2
@@ -98,6 +99,7 @@ void display() {
 
 }
 
+
 void titleDisplay() {
 	system("cls");
 	printf("\n\n\n\n シ ョ ボ ぷ よ\n\n");
@@ -116,6 +118,7 @@ void titleDisplay() {
 		}
 	}
 }
+
 
 
 void gameoverDisplay() {
@@ -185,6 +188,8 @@ void erasePuyo(int _x, int _y, int _cell) {
 		erasePuyo(x, y, _cell);
 	}
 	eraseCount++;
+	Beep(240, 100);
+	Beep(440, 100);
 }
 
 
@@ -320,6 +325,8 @@ int main() {
 
 		while (true) {
 			titleDisplay();
+			Beep(640, 100);
+			Beep(840, 100);
 
 			gameScene();
 
