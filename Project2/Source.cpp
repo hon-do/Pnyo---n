@@ -188,8 +188,9 @@ void erasePuyo(int _x, int _y, int _cell) {
 		erasePuyo(x, y, _cell);
 	}
 	eraseCount++;
-	Beep(240, 100);
-	Beep(440, 100);
+	Beep(240, 30);
+	Beep(340, 30);
+	Beep(440, 30);
 }
 
 
