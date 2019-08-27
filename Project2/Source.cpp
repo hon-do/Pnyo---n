@@ -348,5 +348,9 @@ int main() {
 
 			// gameover
 			gameoverDisplay();
+
+			for (int y = 0; y < FIELD_HEIGHT - 1; y++)
+				for (int x = 1; x < FIELD_WIDTH - 1; x++)
+					cells[y][x] = 0;
 		}
 	}
