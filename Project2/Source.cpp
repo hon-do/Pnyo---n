@@ -135,8 +135,7 @@ void gameoverDisplay() {
 	while (!isValid) {
 		switch (_getch()) {
 			// EnterÇ≈èIóπ
-		case '/r':
-
+		case '\r':
 			isValid = true;
 			break;
 			
@@ -339,15 +338,15 @@ void gameScene() {
 
 int main() {
 
-
-	while (true) {
-		titleDisplay();
-
-		gameScene();
-		
-		// gameover
-		gameoverDisplay();
-	}
 	
 
-}
+
+		while (true) {
+			titleDisplay();
+
+			gameScene();
+
+			// gameover
+			gameoverDisplay();
+		}
+	}
